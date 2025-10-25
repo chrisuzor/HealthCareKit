@@ -540,7 +540,6 @@ def display_vital_card(title, value, unit, color, status="normal"):
     
     st.markdown(card_html, unsafe_allow_html=True)
 
-@st.fragment
 def display_clickable_vital_card(title, value, unit, color, status="normal", vital_key=""):
     """Display a clickable vital sign card that shows statistics within the same tile when clicked"""
     status_display = status.title() if status else "Normal"
