@@ -82,12 +82,18 @@ streamlit run app.py
 
 ### API Server
 ```bash
+# Activate virtual environment
+source venv/bin/activate
+
 # Run Flask API server
 python api_server.py
 ```
 
 ### Desktop Application
 ```bash
+# Activate virtual environment first
+source venv/bin/activate
+
 # Run desktop app
 python scripts/desktop_launcher.py
 ```
