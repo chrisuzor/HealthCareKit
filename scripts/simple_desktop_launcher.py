@@ -1,15 +1,13 @@
 """
-Desktop Launcher for HealthCareKit
-This script launches the Streamlit app in a native desktop window using PyWebView.
+Simple Desktop Launcher for HealthCareKit
+This script launches the Streamlit app and opens it in the default browser.
 """
 
-import webview
 import subprocess
 import time
 import sys
-import os
-import signal
-import atexit
+import webbrowser
+import requests
 
 
 def start_streamlit_process():
@@ -19,15 +17,7 @@ def start_streamlit_process():
         process = subprocess.Popen([
             sys.executable, "-m", "streamlit", "run", "app.py", 
             "--server.headless", "true", "--server.port", "8501"
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        # Register cleanup function
-        def cleanup():
-            if process.poll() is None:
-                process.terminate()
-                process.wait()
-        
-        atexit.register(cleanup)
+        ])
         return process
     except Exception as e:
         print(f"Error starting Streamlit: {e}")
@@ -36,7 +26,6 @@ def start_streamlit_process():
 
 def wait_for_server(url, timeout=30):
     """Wait for the Streamlit server to be ready"""
-    import requests
     start_time = time.time()
     while time.time() - start_time < timeout:
         try:
@@ -56,6 +45,8 @@ def main():
     # Start Streamlit as a subprocess
     streamlit_process = start_streamlit_process()
     if not streamlit_process:
+        print("Streamlit process started successfully!")
+    else:
         print("ERROR: Failed to start Streamlit process")
         sys.exit(1)
     
@@ -63,24 +54,19 @@ def main():
     url = "http://localhost:8501"
     
     if wait_for_server(url):
-        print("Server ready! Opening desktop window...")
-        # Create and start the desktop window
-        window = webview.create_window(
-            'HealthCareKit - AI-Powered Vital Monitoring',
-            url,
-            width=1400,
-            height=900,
-            resizable=True,
-            fullscreen=False
-        )
+        print("Server ready! Opening in browser...")
+        webbrowser.open(url)
+        print("HealthCareKit is now running in your browser!")
+        print("Press Ctrl+C to stop the server.")
         
         try:
-            webview.start()
-        finally:
-            # Clean up the Streamlit process when the window closes
-            if streamlit_process.poll() is None:
-                streamlit_process.terminate()
-                streamlit_process.wait()
+            # Keep the process running
+            streamlit_process.wait()
+        except KeyboardInterrupt:
+            print("\nShutting down HealthCareKit...")
+            streamlit_process.terminate()
+            streamlit_process.wait()
+            print("Goodbye!")
     else:
         print("ERROR: Failed to start Streamlit server within timeout period")
         if streamlit_process.poll() is None:
